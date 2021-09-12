@@ -1,0 +1,61 @@
+---
+  ############### Notes ##################################################################
+  # Once, /var/reports create directory must.                                            #
+  # "Aide Check" cron job results write here to host server /tmp/ directory.             #
+  # where /tmp/aidereport-hostname-date.txt file transfer to Ansible host.               #
+  # Reports file read & write permissions 0600 and reports file location /var/reports    #
+  ########################################################################################
+  - name: Ansible host Aide Report Directory Check
+    shell:
+     cmd: /var/report
+    register: directorycheck
+    delegate_to: localhost
+
+  - name: Ansible host Aide Report Directory Create
+    file:
+      path: /var/report
+      state: directory
+      mode: '0600'
+    when: directorycheck.rc = 0
+    delegate_to: localhost
+
+  - name: Aide Report tranfers Ansible host
+    fetch:
+     src: /tmp/aidereport*
+     dest: /var/report
+    delegate_to: localhost
+
+  - name: Aide report check
+    shell:
+      cmd: ls /tmp/aide*
+    register: aidereportcheck
+
+  - name: Adie report delete
+    file:
+      path: /tmp/aide*
+      state: absent
+    when: aidereportcheck.rc == 0
+
+  - name: Aide Check Cron File Controller
+    shell:
+      cmd: ls /etc/cron."{{ aidecron_frequency }}"/aidecheck
+    register: croncheck
+
+  - name: Aide Check Cron Directory Controller
+    shell:
+      cmd: ls /var/report
+    register: directorycheck
+    delegate_to: localhost
+
+  - name: Aide Check Cron Describe
+    lineinfile:
+      path: /etc/cron."{{ aidecron_frequency }}"/aidecheck
+      line: "{{ item.line }}"
+      mode: "0600"
+      owner: root
+      group: root
+    loop:
+      - { line: '#!/bin/sh' }
+      - { line: '{{ aidecron_set }} /usr/bin/aide --check > /tmp/aidereport-$(hostname -f).$(date +%Y-%m-%d).txt' }
+    when: croncheck.rc >= 2
+...

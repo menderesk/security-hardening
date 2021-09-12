@@ -1,0 +1,4 @@
+[localhost]
+# Ansible Controller Host
+
+[staging]

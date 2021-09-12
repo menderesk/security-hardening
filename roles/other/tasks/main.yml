@@ -1,0 +1,31 @@
+---
+     - name: Previous Delete Pass Env File RHEL 7, SLES 12 15, Ubuntu 16
+       systemd:
+         name: ctrl-alt-del.target
+         masked: yes
+       when:
+          (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] >= "7") or
+          (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] >= "7") or
+          (ansible_facts['distribution'] == "Redhat" and ansible_facts['distribution_major_version'] >= "7") or
+          (ansible_facts['distribution'] == "Ubuntu" and ansible_facts['distribution_major_version'] >= "16") or
+          (ansible_facts['distribution'] == "Fedora" and ansible_facts['distribution_major_version'] >= "30") or
+          (ansible_facts['distribution'] == "SLES"   and ansible_facts['distribution_major_version'] >= "12")
+
+     - name: Previous Delete Pass Env File RHEL 5
+       file:
+         path: /etc/inittab
+         line: ca::ctrlaltdel:/bin/logger -p authpriv.warning -t init "Console-invoked Ctrl-Alt-Del was ignored"
+       when:
+          (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "5") or
+          (ansible_facts['distribution'] == "Redhat" and ansible_facts['distribution_major_version'] == "5")
+
+     - name: RHEL 6
+       replace:
+         path: /etc/init/control-alt-delete.conf
+         regexp: 'exec /sbin/shutdown.*$'
+         replace:  exec /usr/bin/logger -p authpriv.notice -t init "Ctrl-Alt-Del was pressed and ignored"
+       tags: RHEL6-CTRL
+       when:
+          (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "6") or
+          (ansible_facts['distribution'] == "Redhat" and ansible_facts['distribution_major_version'] == "6")
+...

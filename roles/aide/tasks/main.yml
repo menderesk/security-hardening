@@ -1,0 +1,44 @@
+---
+  - name: Aide Install RHEL
+    yum:
+     name: aide
+     state: present
+    when: ansible_facts["pkg_mgr"] == "yum" or ansible_facts["pkg_mgr"] == "dnf"
+
+  - name: Aide Install Deb
+    apt:
+     name: aide
+     state: present
+    when: ansible_facts["pkg_mgr"] == "apt"
+
+  - name: Aide Install SLES
+    zypper:
+     name: aide
+     state: present
+    when: ansible_facts["pkg_mgr"] == "zypper"
+
+  - name: Aide Database init SLES
+    shell:
+     cmd: aide -i
+    when: aide_init_first == "yes" and ansible_facts["pkg_mgr"] == "zypper"
+
+  - name: Aide Database init Debian & Ubuntu
+    shell:
+     cmd: aideinit
+    when: aide_init_first == "yes" and ansible_facts["pkg_mgr"] == "apt"
+
+  - name: Aide Database init RHEL
+    shell:
+     cmd: aide --init
+    when: aide_init_first == "yes" and ansible_facts["pkg_mgr"] == "yum" or  ansible_facts["pkg_mgr"] == "dnf"
+
+  - name: Aide Database Change
+    shell:
+     cmd: mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+    when: aide_init_first == "yes"
+    ignore_errors: yes
+
+  - name: Aide Cron job
+    import_tasks: cron-create.yml
+    when: aidecron_remote == "yes"
+...

@@ -1,0 +1,13 @@
+---
+     - name: Removable Device Read-only
+       lineinfile:
+         path: /etc/udev/rules.d/rMediaAnsible.rules
+         line: SUBSYSTEM=="block",ATTRS{removable}=="1",RUN{program}="/sbin/blockdev --setro %N"
+         owner: root
+         group: root
+         mode: '0400'
+         create: yes
+
+     - name: udev reload
+       shell: udevadm control --reload-rules
+...

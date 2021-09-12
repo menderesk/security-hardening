@@ -1,0 +1,32 @@
+---
+  ##############################################################################
+  # This Ansible playbook is under development.                                #
+  # Author: Menderes Keskin                                                    #
+  # Mail: mendereskeskin@outlook.com                                           #
+  # Version: 1.0                                                               #
+  # Release date: 2021-09-12                                                   #
+  ##############################################################################
+
+  - name: System Hardening Ansible Playbook v1
+    hosts: all
+    become: yes
+    user: root
+    roles:
+     - role: password
+       tags: password
+       when: password_hardening == "yes"
+
+     - role: aide
+       tags: aide_operation
+       when: aide_operation == "yes"
+
+     - role: other
+       tags: other_operation
+       when: other_operation == "yes"
+
+     - role: device
+       tags: device_operation
+       when: device_operation == "yes"
+    vars_files:
+     - vars/variables.yml
+...

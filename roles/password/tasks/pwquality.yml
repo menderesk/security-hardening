@@ -1,0 +1,56 @@
+---
+     - name: libpasswd dpkg check
+       shell:
+         cmd: dpkg -l | grep libpam-pwquality
+       register: dpkgpwcontrol
+       when: ansible_facts["pkg_mgr"] == "apt"
+
+     - name: libpasswd Install & Check
+       apt:
+         state: present
+         name: libpam-pwquality
+       when: ansible_facts["pkg_mgr"] == "apt" and dpkgpwcontrol.rc > 0
+
+     - name: libpasswd zypper check
+       shell:
+         cmd: zypper se -i libpwquality*
+       register: zypperpwcontrol
+       when: ansible_facts["pkg_mgr"] == "zypper"
+       tags: zypper
+
+     - name: libpasswd Install & Check SLES
+       zypper:
+         state: present
+         name: libpam-pwquality
+       when: ansible_facts["pkg_mgr"] == "zypper" and zypperpwcontrol.rc > 0
+       tags: zypper
+
+     - name: Password Quality module add.
+       lineinfile:
+         path: /etc/pam.d/passwd
+         line: password required pam_pwquality.so retry=3
+
+     - name: Password Minimum lengt set to {{ ansible_fqdn }}
+       replace:
+         path: /etc/security/pwquality.conf
+         regexp: '^# minlen = 8'
+         replace: 'minlen = 8'
+
+     - name: Password Class set to {{ ansible_fqdn }}
+       replace:
+         path: /etc/security/pwquality.conf
+         regexp: '^.*minclass.*$'
+         replace: 'minclass = 4'
+
+     - name: Password Max Repeat set to {{ ansible_fqdn }}
+       replace:
+         path: /etc/security/pwquality.conf
+         regexp: '^.*maxrepeat.*$'
+         replace: 'maxrepeat = 3'
+
+     - name: Password Sequence set to {{ ansible_fqdn }}
+       replace:
+         path: /etc/security/pwquality.conf
+         regexp: '^.*maxsequence.*$'
+         replace: 'maxsequence = 3'
+...

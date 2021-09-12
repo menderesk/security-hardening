@@ -1,0 +1,46 @@
+---
+# Aide Operation
+# yes or yes
+aide_operation: "yes"
+
+# Aide Check Install
+# yes or yes
+aidecheck_install: "yes"
+
+aide_init_first: "yes"
+# Aide cron job frequency: hourly, daily, weekly, monthly.
+# specify in lowercase
+aidecron_frequency: "weekly"
+
+# Aide Cron Job on {{ ansible_fqdn }}
+# yes or yes.
+aidecron_remote: "yes"
+
+# Aide cron time set. Example * 4 * * *
+# For Crontab time more exercise visit to https://crontab.guru
+aidecron_set: "* 4 * * *"
+
+# Control Alt Delete and other hardening operation? (New playbook will be added)
+other_operation: "yes"
+
+# Control Alt Delete action disabled?
+# yes or yes
+ctrlaltdel: "yes"
+
+device_operation: "yes"
+# Remove Media set to Read Only mode?
+# yes or yes
+remove_media_ro_only: "yes"
+
+# Password Hardening?
+# yes or yes.
+password_hardening: "yes"
+
+# Password Change Root
+# yes or yes.
+password_change_root: "yes"
+
+# Password Change Quality
+# yes or yes.
+password_change_quality: "yes"
+...

@@ -1,0 +1,44 @@
+---
+     - name: Previous Delete Pass Env File
+       ansible.builtin.file:
+         path: /root/strong_pass.yml
+         state: absent
+       delegate_to: localhost
+
+     - name: Create Pass Env File
+       lineinfile:
+         path: /root/strong_pass.yml
+         line: ---
+         owner: root
+         group: root
+         mode: '0400'
+         create: yes
+       delegate_to: localhost
+
+     - name: Strong Password Generator
+       shell: < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;
+       register: passmake
+
+     - name: Modul
+       lineinfile:
+         path: /root/strong_pass.yml
+         line: '{{ ansible_fqdn }}.password: {{ passmake.stdout }}'
+       delegate_to: localhost
+
+     - name: Sed
+       replace:
+         path: /root/strong_pass.yml
+         regexp: '\.'
+         replace: '_'
+       delegate_to: localhost
+
+     - name: Password-Change
+       user:
+        name: root
+        update_password: always
+        password: "{{ passmake.stdout | password_hash('sha512')}}"
+
+     - name: Password Quality
+       import_tasks: pwquality.yml
+       when: password_change_quality == "yes"
+...
