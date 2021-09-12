@@ -41,6 +41,6 @@ password_hardening: "yes"
 password_change_root: "yes"
 
 # Password Change Quality
-# yes or yes.
+# yes or no.
 password_change_quality: "yes"
 ...
