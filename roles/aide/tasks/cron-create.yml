@@ -46,7 +46,12 @@
       cmd: ls /var/report
     register: directorycheck
     delegate_to: localhost
-
+    
+  - name: Aide Path Check
+    shell:
+     cmd: which aide
+    register: whichaide
+    
   - name: Aide Check Cron Describe
     lineinfile:
       path: /etc/cron."{{ aidecron_frequency }}"/aidecheck
@@ -56,6 +61,6 @@
       group: root
     loop:
       - { line: '#!/bin/sh' }
-      - { line: '{{ aidecron_set }} /usr/bin/aide --check > /tmp/aidereport-$(hostname -f).$(date +%Y-%m-%d).txt' }
+      - { line: '{{ aidecron_set }} {{ whichaide }} --check > /tmp/aidereport-$(hostname -f).$(date +%Y-%m-%d).txt' }
     when: croncheck.rc >= 2
 ...
